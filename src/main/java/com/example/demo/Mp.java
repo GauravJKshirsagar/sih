@@ -29,7 +29,7 @@ public class Mp {
 	public boolean emp_log = false;
 	
 	@Autowired
-	DB db = new DB();
+	DB db;
 	
 
 	
@@ -41,180 +41,37 @@ public class Mp {
 	}
 	
 	
-	@PostMapping("/pi/login")										//login
-	public Map<String, String> login(@RequestBody Map<String, Object> payload) {
-		Login l=new Login();
-	 return l.loginmethod(payload,db);
-		
-	}
 	
-	
-	
-	
+	@GetMapping("/pi/predictcrop")
+	public List predictcrop(@RequestBody Map<String, Object> payload) {
+		String aadharid = (String)payload.get("aadharid");
+		Map<String,String>map= new HashMap<String,String>();
+		java.util.List<Map<String,String>> mymap = new ArrayList<Map<String, String>>();
 
-	@PostMapping("/pi/details/farmer")
-	public Map<String, String> detailsfarmer(@RequestBody Map<String, Object> payload) {
-		String aadharid = (String) payload.get("aadharid");
-		String fullname = (String) payload.get("fullname");
-		String gender = (String) payload.get("gender");
-		String email = (String) payload.get("email");
-		String mobile = (String) payload.get("mobile");
-
-		Map<String,String> map= new HashMap<String,String>();
-		PreparedStatement st = null;
+		Statement st = null;
 		ResultSet rs = null;
-		
-		String sql1 = "INSERT INTO public.farmerinfo(aadharid, name, gender, email, mobile) VALUES (?, ?, ?,?,?);";
-		
+		String sql1=null;
 		try {
-			PreparedStatement stmt = db.connect().prepareStatement(sql1);
-			stmt.setString(1, aadharid);
-			stmt.setString(2, fullname);
-			stmt.setString(3, gender);
-			stmt.setString(4, email);
-			stmt.setString(5, mobile);
-
-				
-			stmt.executeUpdate();
-			System.out.println("done");
-			map.put("status","Entry Successful");
-		} 
-		catch (SQLException e) {
-			e.printStackTrace();
-			System.out.println(e.getMessage());
-			map.put("status","Not Successful");
-			return map;
-			}
-		
-	return map;
-	}
-	
-	
-	@PostMapping("/pi/details/vendor")
-	public Map<String, String> detailsvendors(@RequestBody Map<String, Object> payload) {
-		String aadharid = (String) payload.get("aadharid");
-		String fullname = (String) payload.get("fullname");
-		String gender = (String) payload.get("gender");
-		String email = (String) payload.get("email");
-		String mobile = (String) payload.get("mobile");
-
-		Map<String,String> map= new HashMap<String,String>();
-		PreparedStatement st = null;
-		ResultSet rs = null;
-		
-		String sql1 = "INSERT INTO public.vendors(aadharid, name, gender, email, mobile) VALUES (?, ?, ?,?,?);";
-		
-		try {
-			PreparedStatement stmt = db.connect().prepareStatement(sql1);
-			stmt.setString(1, aadharid);
-			stmt.setString(2, fullname);
-			stmt.setString(3, gender);
-			stmt.setString(4, email);
-			stmt.setString(5, mobile);
-
-				
-			stmt.executeUpdate();
-			System.out.println("done");
-			map.put("status","Entry Successful");
-		} 
-		catch (SQLException e) {
-			e.printStackTrace();
-			System.out.println(e.getMessage());
-			map.put("status","Not Successful");
-			return map;
-			}
-		
-	return map;
-	}
-	
-	
-	
-	
-	
-	@PostMapping("/pi/details/expert")
-	public Map<String, String> detailsexpert(@RequestBody Map<String, Object> payload) {
-		String aadharid = (String) payload.get("aadharid");
-		String fullname = (String) payload.get("fullname");
-		String gender = (String) payload.get("gender");
-		String email = (String) payload.get("email");
-		String mobile = (String) payload.get("mobile");
-
-		Map<String,String> map= new HashMap<String,String>();
-		PreparedStatement st = null;
-		ResultSet rs = null;
-		
-		String sql1 = "INSERT INTO public.experts(aadharid, name, gender, email, mobile) VALUES (?, ?, ?,?,?);";
-		
-		try {
-			PreparedStatement stmt = db.connect().prepareStatement(sql1);
-			stmt.setString(1, aadharid);
-			stmt.setString(2, fullname);
-			stmt.setString(3, gender);
-			stmt.setString(4, email);
-			stmt.setString(5, mobile);
-
-				
-			stmt.executeUpdate();
-			System.out.println("done");
-			map.put("status","Entry Successful");
-		} 
-		catch (SQLException e) {
-			e.printStackTrace();
-			System.out.println(e.getMessage());
-			map.put("status","Not Successful");
-			return map;
-			}
-		
-	return map;
-	}
-	
-	
-	@PostMapping("/pi/addfarm")
-	public Map<String, String> addfarm(@RequestBody Map<String, Object> payload) {
-		Myfarm f= new Myfarm(db);
-		try {
-			return f.addfarms(payload);
-		} catch (ParseException e) {
-			e.printStackTrace();
+		sql1 = "SELECT farmid,location FROM public.farm where farmerid='"+aadharid+"';";
+		 st = db.connect().createStatement();
+		 rs = st.executeQuery(sql1);
+		 int i=0;
+		 while(i<10) {
+			 i++;
+			 Map<String, String>map1=new HashMap<String,String>();
+			 map1.put("crop", "wheat");
+			 mymap.add(map1);
+		 }
+		 return mymap;
+		 
 		}
-		return null;
+		catch(Exception e){
+			map.put("Status", "Error");
+			mymap.add(map);
+			return mymap;
+		}
 	}
-	
-	
-	@PostMapping("/pi/addfarm/addcrop")
-	public Map<String, String> addcrop(@RequestBody Map<String, Object> payload) {
-		Myfarm f= new Myfarm(db);
-		return f.addcrops(payload);
-	}
-	
-	
-	
-	@GetMapping("/pi/showfarm")
-	public List showfarm(@RequestBody Map<String, Object> payload) {
-		Myfarm f= new Myfarm(db);
-		return f.showfarm(payload);
-	}
-	
-	
-	
-	@GetMapping("/pi/showcrop")
-	public List showcrop(@RequestBody Map<String, Object> payload) {
-		Myfarm f= new Myfarm(db);
-		return f.showcrop(payload);
-	}
-	
-	
-	
-	
-	
-	
-	
-	
 	
 
-
-	
-	
-	
 	
 }
