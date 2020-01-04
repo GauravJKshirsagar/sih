@@ -15,9 +15,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date.*;
 import java.util.HashMap;
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api",  produces = "application/json")
@@ -62,7 +64,7 @@ public class Mp {
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		
-		String sql1 = "INSERT INTO public.personalinfo(aadharid, name, gender, email, mobile) VALUES (?, ?, ?,?,?);";
+		String sql1 = "INSERT INTO public.farmerinfo(aadharid, name, gender, email, mobile) VALUES (?, ?, ?,?,?);";
 		
 		try {
 			PreparedStatement stmt = db.connect().prepareStatement(sql1);
@@ -165,6 +167,50 @@ public class Mp {
 		
 	return map;
 	}
+	
+	
+	@PostMapping("/pi/addfarm")
+	public Map<String, String> addfarm(@RequestBody Map<String, Object> payload) {
+		Myfarm f= new Myfarm(db);
+		try {
+			return f.addfarms(payload);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	
+	@PostMapping("/pi/addfarm/addcrop")
+	public Map<String, String> addcrop(@RequestBody Map<String, Object> payload) {
+		Myfarm f= new Myfarm(db);
+		return f.addcrops(payload);
+	}
+	
+	
+	
+	@GetMapping("/pi/showfarm")
+	public List showfarm(@RequestBody Map<String, Object> payload) {
+		Myfarm f= new Myfarm(db);
+		return f.showfarm(payload);
+	}
+	
+	
+	
+	@GetMapping("/pi/showcrop")
+	public List showcrop(@RequestBody Map<String, Object> payload) {
+		Myfarm f= new Myfarm(db);
+		return f.showcrop(payload);
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 
 	
