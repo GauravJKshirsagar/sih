@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class DB {
 
-	 private final String url = "jdbc:postgresql://localhost:5432/employee";
+	 private final String url = "jdbc:postgresql://localhost:5432/farmer";
 	    private final String user = "postgres";
 	    private final String password = "7767";
 	    public  Connection conn;
