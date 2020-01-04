@@ -96,8 +96,11 @@ public class Expert {
 		String taluka=(String)payload.get("taluka");
 		String info=(String)payload.get("info");
 		String crop=(String)payload.get("crop");
+		String pest=(String)payload.get("pest");
+
+	    String d = java.time.LocalDate.now().toString();
 		SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
-		java.util.Date date1 = sdf1.parse((String)payload.get("date"));
+		java.util.Date date1 = sdf1.parse((String)d);
 		java.sql.Date date = new java.sql.Date(date1.getTime());
 
 		
@@ -106,7 +109,7 @@ public class Expert {
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		
-		String sql1 = "INSERT INTO public.pestwarning(issuersid, state, district, taluka, info,crop,date) VALUES (?, ?, ?,?,?,?,?);";
+		String sql1 = "INSERT INTO public.pestwarning(issuersid, state, district, taluka, info,crop,date,pest) VALUES (?,?, ?, ?,?,?,?,?);";
 		
 		try {
 			PreparedStatement stmt = db.connect().prepareStatement(sql1);
@@ -117,6 +120,8 @@ public class Expert {
 			stmt.setString(5, info);
 			stmt.setString(6, crop);
 			stmt.setDate(7, date);
+			stmt.setString(8, pest);
+
 
 
 

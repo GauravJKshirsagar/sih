@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.format.DateTimeFormatter;  
+import java.time.LocalDateTime;  
 import ch.qos.logback.core.util.SystemInfo;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -294,6 +296,7 @@ return map;
 			map1.put("type", "pestattack");
 			map1.put("crop", rs.getString("crop"));
 			map1.put("info", rs.getString("info"));
+			map1.put("pest", rs.getString("pest"));
 			map1.put("date", rs.getDate("date").toString());
 
 			System.out.println(map1);
@@ -434,6 +437,193 @@ return map;
 		}
 	return mymap;
 				
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	@PostMapping("/upload/pestattack")
+	public Map<String,String> pestattack(@RequestBody Map<String,Object> payload) throws ParseException{
+	String location =null;
+
+	String farmid = (String) payload.get("farmid");
+	String pest = (String) payload.get("pest");
+	String state = (String) payload.get("state");
+	String  district= (String) payload.get("district");
+	String taluka = (String) payload.get("taluka");
+	String town = (String) payload.get("town");
+	String crop = (String) payload.get("crop");
+	String info = (String) payload.get("info");
+
+	System.out.println(java.time.LocalDate.now());  
+
+    String d = java.time.LocalDate.now().toString();
+
+   SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
+	java.util.Date date1 = sdf1.parse((String)d);
+	java.sql.Date date = new java.sql.Date(date1.getTime());
+	
+
+
+	Map<String,String> map= new HashMap<String,String>();
+//	java.util.List<Map<String,String>> mymap = new ArrayList<Map<String, String>>();
+	Integer count=0;
+	Statement st = null;
+	ResultSet rs = null;
+	String sql1=null;
+	 sql1 = "SELECT count,pk from public.pestattacktemp WHERE crop='"+crop+"' and pest='"+pest+"' and state='"+state+"'and district='"+district+"'and taluka='"+taluka+"' and town='"+town+"';"; 
+	try {
+		st = db.connect().createStatement();
+	} catch (SQLException e1) {
+		e1.printStackTrace();
+	}
+	 try {
+		rs = st.executeQuery(sql1);
+	} catch (SQLException e1) {
+		e1.printStackTrace();
+	}
+	 try {
+		if(rs.next()) {
+			 count=Integer.valueOf(rs.getString("count"));
+			 if(count>=5) {
+				rs.close();
+				st.close();
+				sql1=null;
+				
+				 sql1 = "INSERT INTO public.pestwarning(issuersid, state, district, taluka,town, info,crop,date,pest) VALUES (?,?, ?, ?,?,?,?,?,?);";
+				
+				try {
+					PreparedStatement stmt = db.connect().prepareStatement(sql1);
+					stmt.setString(1, farmid);
+					stmt.setString(2, state);
+					stmt.setString(3, district);
+					stmt.setString(4, taluka);
+					stmt.setString(5, town);
+					stmt.setString(6, info);
+					stmt.setString(7, crop);
+					stmt.setDate(8, date);
+					stmt.setString(9, pest);
+		
+					stmt.executeUpdate();
+					System.out.println("done");
+					map.put("status","Entry Successful");
+					
+					
+					sql1="DELETE FROM public.pestattacktemp where farmid='"+farmid+"';";
+					st = db.connect().createStatement();
+					 st.executeUpdate(sql1);
+
+					
+				
+					
+					return map;
+				} 
+				catch (SQLException e) {
+					e.printStackTrace();
+					System.out.println(e.getMessage());
+					map.put("status","Not Successful");
+					return map;
+					}
+				 //push this data to pestattack
+			 }
+			 else {
+			 count++;
+			 String pk=rs.getString("pk");
+			 
+			rs.close();
+			st.close();
+			sql1=null;
+			
+			
+			 sql1="UPDATE public.pestattacktemp SET count=? WHERE pk='"+pk+"';";
+			PreparedStatement stmt1 = db.connect().prepareStatement(sql1);
+			stmt1.setString(1,count.toString());
+			stmt1.executeUpdate();	
+			map.put("status", "successful");
+			 }
+		 }
+		
+		
+		 else {
+		try {
+		sql1 = "SELECT farmid FROM public.farm where farmid='"+farmid+"';";
+		 st = db.connect().createStatement();
+		 rs = st.executeQuery(sql1);
+		 sql1=null;
+		 rs.next();
+		 
+		 if(farmid.equals(rs.getString("farmid"))) {
+
+			    
+			
+			 sql1 = "INSERT INTO public.pestattacktemp (farmid, pest, date,state, district, taluka, town, count, crop, info) VALUES (?,?,?,?,?,?,?,?,?,?);";
+			
+			try {
+				PreparedStatement stmt = db.connect().prepareStatement(sql1);
+				stmt.setString(1, farmid);
+				stmt.setString(2, pest);
+				stmt.setDate(3, date);
+				stmt.setString(4, state);
+				stmt.setString(5, district);
+				stmt.setString(6, taluka);
+				stmt.setString(7, town);
+				stmt.setString(8, count.toString());
+				stmt.setString(9, crop);
+				stmt.setString(10, info);
+
+				System.out.print("here");
+
+				
+				stmt.executeUpdate();
+				System.out.println("done");
+				map.put("status","Entry Successful");
+				
+				rs.close();
+				st.close();
+				
+				
+			} 
+			catch (SQLException e) {
+				e.printStackTrace();
+				System.out.println(e.getMessage());
+				map.put("status","Not Successful");
+				return map;
+				}
+			 	 
+		 }
+		 else {
+				map.put("Status", "farmerid doesn't exist");
+
+		 }
+		 
+		 
+		 
+		 rs.close();
+		 st.close();
+
+		}
+		catch(Exception e){
+			map.put("Status", "Error");
+//		mymap.add(map);
+			return map;
+		}
+		 }
+	} catch (NumberFormatException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	} catch (SQLException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	
+	
+	
+return map;
 	}
 	
 
