@@ -749,6 +749,62 @@ return map;
 return map;
 	}
 	
+	
+	
+	
+	
+	
+	
+	
+	@GetMapping("/show/finance")
+	public List showfinance(@RequestBody Map<String,Object> payload){
+		String farmerid=(String) payload.get("aadharid");
+		System.out.println(payload);
+		Map<String,String>map= new HashMap<String,String>();
+		java.util.List<Map<String,String>> mymap = new ArrayList<Map<String, String>>();
+
+		Statement st = null;
+		ResultSet rs = null;
+		String sql1=null;
+		try {
+		sql1 = "SELECT * FROM public.finance where farmerid='"+farmerid+"';";
+		 st = db.connect().createStatement();
+		 rs = st.executeQuery(sql1);
+		}
+		catch(Exception e){
+			map.put("Status", "Error");
+			mymap.add(map);
+			return mymap;
+		}
+		
+		try {
+			int i=0;
+			while(rs.next()) {
+				Map<String,String>map1=new HashMap<String,String>();
+			map1.put("farmid", rs.getString("farmid"));
+			map1.put("source", rs.getString("source"));
+			map1.put("type", rs.getString("type"));
+			map1.put("amount", rs.getString("amount"));
+			map1.put("date", rs.getDate("date").toString());
+			map1.put("time", rs.getString("time"));
+			map1.put("receipt", rs.getString("receipt"));
+			map1.put("timestamp", rs.getString("timestamp"));
+			
+			
+			System.out.println(map1);
+			mymap.add(i, map1);
+//			System.out.println("mymap="+mymap);
+			i++;
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	return mymap;
+				
+	}
+	
+	
 
 	
 

@@ -24,10 +24,7 @@ import java.util.List;
 @RestController
 @RequestMapping(value = "/api",  produces = "application/json")
 public class Mp {
-	public String log;
-	public boolean admin_log=true;
-	public boolean emp_log = false;
-	
+
 	@Autowired
 	DB db;
 	
