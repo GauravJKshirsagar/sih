@@ -33,11 +33,11 @@ public class Login {
 		return map;
 	}
 	
-	@GetMapping("/login")										//method to test
+	@PostMapping("/login")										//method to test
 	public Map<String,String> loginmethod(@RequestBody Map<String, Object> payload,DB db){
 	Map<String,String>map=new HashMap<String,String>();
 	
-	String loginid= (String) payload.get("loginid");
+	String loginid= (String) payload.get("aadharid");
 	String password= (String) payload.get("password");
 	
 	Statement st = null;

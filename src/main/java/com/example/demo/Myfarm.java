@@ -45,15 +45,17 @@ public class Myfarm {
 	
 	@PostMapping("/add/crop")
 	public Map<String,String> addcrop(@RequestBody Map<String,Object> payload) throws ParseException{
-	String aadharid = (String) payload.get("aadharid");
-	String location = (String) payload.get("location");
-	String name = (String) payload.get("name");
+	String farmid = (String) payload.get("farmid");
+//	String farmno = (String) payload.get("location");
+	String name = (String) payload.get("crop");
+	String area = (String) payload.get("area");
+
 	
 	SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
 	java.util.Date date1 = sdf1.parse((String)payload.get("sowing"));
 	java.sql.Date sowing = new java.sql.Date(date1.getTime());
 
-	String farmid= aadharid+location;
+//	String farmid= aadharid+location;
 	String cropid= name+sowing.toString();
 
 	Map<String,String>map= new HashMap<String,String>();
@@ -62,7 +64,7 @@ public class Myfarm {
 	ResultSet rs = null;
 	String sql1=null;
 	try {
-	sql1 = "SELECT location FROM public.farm where farmid='"+farmid+"';";
+	sql1 = "SELECT farmid FROM public.farm where farmid='"+farmid+"';";
 	 st = db.connect().createStatement();
 	 rs = st.executeQuery(sql1);
 	}
@@ -79,8 +81,8 @@ public class Myfarm {
 		e1.printStackTrace();
 	}
 	try {
-		if(!rs.getString("location").equals(null)) {
-			String sql2 = "INSERT INTO public.crop(cropid,name,farmid,sowing) VALUES (?, ?, ?,?);";
+		if(rs.getString("farmid").equals(farmid)) {
+			String sql2 = "INSERT INTO public.crop(cropid,name,farmid,sowing,area) VALUES (?, ?,?, ?,?);";
 			
 			try {
 				PreparedStatement stmt = db.connect().prepareStatement(sql2);
@@ -88,6 +90,8 @@ public class Myfarm {
 				stmt.setString(2, name);
 				stmt.setString(3, farmid);
 				stmt.setDate(4, (Date) sowing);
+				stmt.setString(5, area);
+
 
 					
 				stmt.executeUpdate();
@@ -116,18 +120,29 @@ return map;
 	
 	
 	@PostMapping("/add/farm")
-	public Map<String,String> addcrops(@RequestBody Map<String,Object> payload){
+	public Map<String,String> addcrops(@RequestBody Map<String,Object> payload) throws ParseException{
 	String aadharid = (String) payload.get("aadharid");
+	String farmno = (String) payload.get("farmno");
 	String location = (String) payload.get("location");
-	String farmid= aadharid+location;
+	String pincode = (String) payload.get("pincode");
+	String district = (String) payload.get("district");
+	String state = (String) payload.get("state");
+	String taluka = (String) payload.get("taluka");
+	String town = (String) payload.get("town");
+	String area = (String) payload.get("area");
 
+
+
+	String farmid= aadharid+farmno;
+
+	
 	Map<String,String> map= new HashMap<String,String>();
 	
 	Statement st = null;
 	ResultSet rs = null;
 	String sql1=null;
 	try {
-	sql1 = "SELECT farmid FROM public.farmerinfo where farmid='"+farmid+"';";
+	sql1 = "SELECT aadharid FROM public.farmerinfo where aadharid='"+aadharid+"';";
 	 st = db.connect().createStatement();
 	 rs = st.executeQuery(sql1);
 	}
@@ -137,21 +152,39 @@ return map;
 	}
 	try {
 		if(!rs.next()) {
-			map.put("Status", "Error");
-			return map;
-			}
+			map.put("status", "error");
+		}
 	} catch (SQLException e1) {
+		// TODO Auto-generated catch block
 		e1.printStackTrace();
 	}
+	
 	try {
-		if(!rs.getString("location").equals(null)) {
-			String sql2 = "INSERT INTO public.farm(farmid, farmerid,location) VALUES (?, ?, ?);";
+		if(rs.getString("aadharid").equals(aadharid)) {
+			String sql2 = "INSERT INTO public.farm(farmid, farmerid,location,pincode,district,state,taluka,town,date,area) VALUES (?,?, ?, ?,?,?,?,?,?,?);";
 			
 			try {
+				System.out.println(java.time.LocalDate.now());  
+
+			    String d = java.time.LocalDate.now().toString();
+				SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
+				java.util.Date date1 = sdf1.parse(d);
+				java.sql.Date date = new java.sql.Date(date1.getTime());
+				
 				PreparedStatement stmt = db.connect().prepareStatement(sql2);
 				stmt.setString(1, farmid);
 				stmt.setString(2, aadharid);
 				stmt.setString(3, location);
+				stmt.setString(4, pincode);
+				stmt.setString(5, district);
+				stmt.setString(6, state);
+				stmt.setString(7, taluka);
+				stmt.setString(8, town);
+				stmt.setDate(9, date);
+				stmt.setString(10,area);
+
+
+
 					
 				stmt.executeUpdate();
 				System.out.println("done");
@@ -181,7 +214,7 @@ return map;
 	@GetMapping("/show/farm")
 	public List showfarm(@RequestBody Map<String,Object> payload){
 		String aadharid=(String) payload.get("aadharid");
-		
+		System.out.println(payload);
 		Map<String,String>map= new HashMap<String,String>();
 		java.util.List<Map<String,String>> mymap = new ArrayList<Map<String, String>>();
 
@@ -210,7 +243,6 @@ return map;
 //			System.out.println("mymap="+mymap);
 			i++;
 			}
-
 
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -623,6 +655,97 @@ return map;
 	
 	
 	
+return map;
+	}
+	
+	
+	
+	
+	
+	
+	
+	@PostMapping("/upload/finance")
+	public Map<String,String> finance(@RequestBody Map<String,Object> payload) throws ParseException{
+	String farmerid = (String) payload.get("aadharid");
+	String farmid = (String) payload.get("farmid");
+	String type = (String) payload.get("type");
+	String source = (String) payload.get("source");
+
+	String amount = (String) payload.get("amount");
+	String receipt = (String) payload.get("receipt");
+	String time = (String) payload.get("time");
+
+
+	SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
+	java.util.Date date1 = sdf1.parse((String)payload.get("date"));
+	java.sql.Date date = new java.sql.Date(date1.getTime());
+	
+	
+	Map<String,String> map= new HashMap<String,String>();
+	
+	Statement st = null;
+	ResultSet rs = null;
+	String sql1=null;
+	try {
+	sql1 = "SELECT aadharid FROM public.farmerinfo where aadharid='"+farmerid+"';";
+	 st = db.connect().createStatement();
+	 rs = st.executeQuery(sql1);
+	}
+	catch(Exception e){
+		map.put("Status", "Error");
+		return map;
+	}
+	try {
+		if(!rs.next()) {
+			map.put("status", "error");
+		}
+	} catch (SQLException e1) {
+		// TODO Auto-generated catch block
+		e1.printStackTrace();
+	}
+	
+	try {
+		if(rs.getString("aadharid").equals(farmerid)) {
+			String sql2 = "INSERT INTO public.finance(farmid, farmerid,source,type,amount,date,time,receipt,timestamp) VALUES (?,?,?, ?, ?,?,?,?,?);";
+			
+			try {
+				System.out.println(java.time.LocalDate.now());  
+
+			    String timestamp = java.time.LocalDate.now().toString();
+			
+				
+				PreparedStatement stmt = db.connect().prepareStatement(sql2);
+				stmt.setString(1, farmid);
+				stmt.setString(2, farmerid);
+				stmt.setString(3, source);
+				stmt.setString(4, type);
+				stmt.setString(5, amount);
+				stmt.setDate(6, date);
+				stmt.setString(7, time);
+				stmt.setString(8, receipt);
+				stmt.setString(9, timestamp);
+
+
+
+					
+				stmt.executeUpdate();
+				System.out.println("done");
+				map.put("status","Entry Successful");
+			} 
+			catch (SQLException e) {
+				e.printStackTrace();
+				System.out.println(e.getMessage());
+				map.put("status","Not Successful");
+				return map;
+				}	
+		}
+		else {
+			map.put("status", "farmerid doesn't exist");
+
+		}
+	} catch (SQLException e) {
+		e.printStackTrace();
+	}
 return map;
 	}
 	
