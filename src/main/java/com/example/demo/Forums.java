@@ -1,6 +1,9 @@
 package com.example.demo;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,6 +15,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;    
 import ch.qos.logback.core.util.SystemInfo;
 
+import java.sql.JDBCType;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -39,10 +43,11 @@ public class Forums {
 	String question = (String) payload.get("question");
 	String time = (String) payload.get("time");
 	String title = (String) payload.get("title");
+	int questionid;
 	
 
-	String ids = payload.get("tags").toString();
-	System.out.println(ids);
+	ArrayList ids = (ArrayList) payload.get("tags");
+	System.out.println(ids.get(0));
 	
 //	tags entry left
 
@@ -77,7 +82,7 @@ public class Forums {
 	
 	try {
 		if(rs.getString("aadharid").equals(farmerid)) {
-			String sql2 = "INSERT INTO public.questions( farmerid,question,date,time,title) VALUES (?,?, ?, ?,?);";
+			String sql2 = "INSERT INTO public.questions( farmerid,question,date,time,title) VALUES (?,?, ?, ?,?) returning *;";
 			
 			try {
 				System.out.println(java.time.LocalDate.now());  
@@ -94,10 +99,15 @@ public class Forums {
 				stmt.setString(4, time);
 				stmt.setString(5, title);
 				
-
-				stmt.executeUpdate();
+				ResultSet rs1=stmt.executeQuery();
+				rs1.next();
+				System.out.println(rs1.getInt("questionid"));
+			
+				 questionid = rs1.getInt("questionid");
 				System.out.println("done");
 				map.put("status","Entry Successful");
+				rs.close();
+				st.close();
 			} 
 			catch (SQLException e) {
 				e.printStackTrace();
@@ -105,6 +115,38 @@ public class Forums {
 				map.put("status","Not Successful");
 				return map;
 				}	
+			
+			
+			
+			for(int i=0;i<ids.size();i++) {
+				
+ sql2 = "INSERT INTO public.questiontags(questionid,tag) VALUES (?,?) ;";
+			
+			try {
+				PreparedStatement stmt = db.connect().prepareStatement(sql2);
+
+				stmt.setInt(1, questionid);
+				stmt.setString(2, ids.get(i).toString());
+				
+				
+				stmt.executeUpdate();
+			
+			
+				System.out.println("done");
+				map.put("status","Entry Successful");
+				rs.close();
+				st.close();
+			} 
+			catch (SQLException e) {
+				e.printStackTrace();
+				System.out.println(e.getMessage());
+				map.put("status","Not Successful");
+				return map;
+				}	
+			
+			
+			
+		}
 		}
 		else {
 			map.put("status", "farmerid doesn't exist");
