@@ -126,7 +126,6 @@ public class Expert {
 
 
 				
-			stmt.executeUpdate();
 			System.out.println("done");
 			map.put("status","Entry Successful");
 		} 
