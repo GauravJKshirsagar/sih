@@ -208,4 +208,50 @@ public class Login {
 	
 	
 	
+	
+	
+	
+	@PostMapping("/government")
+	public Map<String, String> govt(@RequestBody Map<String, Object> payload) {
+		String aadharid = (String) payload.get("aadharid");
+		String fullname = (String) payload.get("fullname");
+		String gender = (String) payload.get("gender");
+		String email = (String) payload.get("email");
+		String mobile = (String) payload.get("mobile");
+
+		Map<String,String> map= new HashMap<String,String>();
+		PreparedStatement st = null;
+		ResultSet rs = null;
+		
+		String sql1 = "INSERT INTO public.govt(aadharid, name, gender, email, mobile) VALUES (?, ?, ?,?,?);";
+		
+		try {
+			PreparedStatement stmt = db.connect().prepareStatement(sql1);
+			stmt.setString(1, aadharid);
+			stmt.setString(2, fullname);
+			stmt.setString(3, gender);
+			stmt.setString(4, email);
+			stmt.setString(5, mobile);
+
+				
+			stmt.executeUpdate();
+			System.out.println("done");
+			map.put("status","Entry Successful");
+		} 
+		catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println(e.getMessage());
+			map.put("status","Not Successful");
+			return map;
+			}
+		
+	return map;
+	}
+	
+	
+	
+	
+	
+	
+	
 }

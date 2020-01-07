@@ -800,6 +800,47 @@ return map;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+	return mymap;	
+	}
+	
+	
+	
+	
+	@GetMapping("/show/schemes")
+	public List showschemes(@RequestBody Map<String,Object> payload){
+		String aadharid=(String) payload.get("aadharid");
+		System.out.println(payload);
+		Map<String,String>map= new HashMap<String,String>();
+		java.util.List<Map<String,String>> mymap = new ArrayList<Map<String, String>>();
+
+		Statement st = null;
+		ResultSet rs = null;
+		String sql1=null;
+		try {
+		sql1 = "SELECT * FROM public.govtschemes ;";
+		 st = db.connect().createStatement();
+		 rs = st.executeQuery(sql1);
+		int i=0;
+		while(rs.next()) {
+			Map<String,String>map1=new HashMap<String,String>();
+		map1.put("title", rs.getString("title"));
+		map1.put("synopsis", rs.getString("synopsis"));
+		map1.put("expirydate", rs.getString("expirydate"));
+		map1.put("startdate", rs.getString("startdate"));
+		map1.put("uploaddate", rs.getString("uploaddate"));
+		map1.put("uploadtime", rs.getString("uploadtime"));
+		map1.put("details", rs.getString("details"));
+		map1.put("s_id", rs.getString("s_id"));
+
+		System.out.println(map1);
+		mymap.add(i, map1);
+//			System.out.println("mymap="+mymap);
+		i++;
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	return mymap;
 				
 	}
