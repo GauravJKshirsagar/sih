@@ -39,7 +39,7 @@ public class Mp {
 	
 	
 	
-	@GetMapping("/pi/predictcrop")
+	@GetMapping("/predictcrop")
 	public List predictcrop(@RequestBody Map<String, Object> payload) {
 		String aadharid = (String)payload.get("aadharid");
 		Map<String,String>map= new HashMap<String,String>();

@@ -48,7 +48,7 @@ public class Myfarm {
 	String farmid = (String) payload.get("farmid");
 //	String farmno = (String) payload.get("location");
 	String name = (String) payload.get("crop");
-	String area = (String) payload.get("area");
+	int area = Integer.valueOf((String) payload.get("area"));
 
 	
 	SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
@@ -56,7 +56,7 @@ public class Myfarm {
 	java.sql.Date sowing = new java.sql.Date(date1.getTime());
 
 //	String farmid= aadharid+location;
-	String cropid= name+sowing.toString();
+//	String cropid= name+sowing.toString();
 
 	Map<String,String>map= new HashMap<String,String>();
 	
@@ -82,15 +82,14 @@ public class Myfarm {
 	}
 	try {
 		if(rs.getString("farmid").equals(farmid)) {
-			String sql2 = "INSERT INTO public.crop(cropid,name,farmid,sowing,area) VALUES (?, ?,?, ?,?);";
+			String sql2 = "INSERT INTO public.crop(name,farmid,sowing,area) VALUES ( ?,?, ?,?);";
 			
 			try {
 				PreparedStatement stmt = db.connect().prepareStatement(sql2);
-				stmt.setString(1, cropid);
-				stmt.setString(2, name);
-				stmt.setString(3, farmid);
-				stmt.setDate(4, (Date) sowing);
-				stmt.setString(5, area);
+				stmt.setString(1, name);
+				stmt.setString(2, farmid);
+				stmt.setDate(3, (Date) sowing);
+				stmt.setInt(4, area);
 
 
 					
@@ -212,9 +211,9 @@ return map;
 	
 	
 	@GetMapping("/show/farm")
-	public List showfarm(@RequestBody Map<String,Object> payload){
-		String aadharid=(String) payload.get("aadharid");
-		System.out.println(payload);
+	public List showfarm(@RequestParam("aadharid") String aadharid){
+//		String aadharid=(String) payload.get("aadharid");
+		System.out.println(aadharid);
 		Map<String,String>map= new HashMap<String,String>();
 		java.util.List<Map<String,String>> mymap = new ArrayList<Map<String, String>>();
 
@@ -282,6 +281,8 @@ return map;
 				Map<String,String>map1=new HashMap<String,String>();
 			map1.put("cropid", rs.getString("cropid"));
 			map1.put("name", rs.getString("name"));
+			map1.put("area", rs.getString("area"));
+
 			map1.put("sowing", rs.getDate("sowing").toString());
 
 			System.out.println(map1);
@@ -842,8 +843,13 @@ return map;
 			e.printStackTrace();
 		}
 	return mymap;
-				
+			
 	}
+	
+	
+	
+	
+	
 	
 	
 

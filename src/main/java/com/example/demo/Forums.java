@@ -48,7 +48,7 @@ public class Forums {
 	
 
 	ArrayList ids = (ArrayList) payload.get("tags");
-	System.out.println(ids.get(0));
+//	System.out.println(ids.get(0));
 	
 //	tags entry left
 
@@ -278,11 +278,8 @@ return map;
 	
 
 	@GetMapping("/show/question")
-	public List showquestion(@RequestBody Map<String,Object> payload) throws ParseException {
-		String aadharid=null;
-		String type=null;
-		 aadharid=(String)payload.get("aadharid");
-		 type=(String)payload.get("type");
+	public List showquestion(@RequestParam("aadharid") String aadharid, @RequestParam("type") String type) throws ParseException {
+
 		
 		Map<String,String> map= new HashMap<String,String>();
 		List<Map<String,String>>l=new ArrayList<Map<String,String>>();
